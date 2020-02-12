@@ -190,7 +190,7 @@
 <xsl:template match="/sqlMap">
 <xsl:comment>Converted at: <xsl:value-of select="string(java:java.util.Date.new())"/> </xsl:comment>
 <xsl:text disable-output-escaping="yes"><![CDATA[
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 ]]></xsl:text>
 <xsl:element name="mapper">
@@ -200,31 +200,33 @@
 </xsl:template>
 
 <xsl:template match="/sqlMap/select">
-	<xsl:element name="select">
-		<xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute>
-		<xsl:if test="@parameterClass">
-			<xsl:attribute name="parameterType"><xsl:value-of select="@parameterClass" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@parameterMap">
-			<xsl:attribute name="parameterMap"><xsl:value-of select="@parameterMap" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@resultClass">
-			<xsl:attribute name="resultType"><xsl:value-of select="@resultClass" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@resultMap">
-			<xsl:attribute name="resultMap"><xsl:value-of select="@resultMap" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@fetchSize">
-			<xsl:attribute name="fetchSize"><xsl:value-of select="@fetchSize" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@resultSetType">
-			<xsl:attribute name="resultSetType"><xsl:value-of select="@resultSetType" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@timeout">
-			<xsl:attribute name="timeout"><xsl:value-of select="@timeout" /></xsl:attribute>
-		</xsl:if>
-  	<xsl:apply-templates/>
-  	</xsl:element>
+	<xsl:if test="starts-with(@id,'count') = false">
+		<xsl:element name="select">
+			<xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute>
+			<xsl:if test="@parameterClass">
+				<xsl:attribute name="parameterType"><xsl:value-of select="@parameterClass" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@parameterMap">
+				<xsl:attribute name="parameterMap"><xsl:value-of select="@parameterMap" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@resultClass">
+				<xsl:attribute name="resultType"><xsl:value-of select="@resultClass" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@resultMap">
+				<xsl:attribute name="resultMap"><xsl:value-of select="@resultMap" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@fetchSize">
+				<xsl:attribute name="fetchSize"><xsl:value-of select="@fetchSize" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@resultSetType">
+				<xsl:attribute name="resultSetType"><xsl:value-of select="@resultSetType" /></xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@timeout">
+				<xsl:attribute name="timeout"><xsl:value-of select="@timeout" /></xsl:attribute>
+			</xsl:if>
+		<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="/sqlMap/insert">
@@ -235,6 +237,10 @@
 		</xsl:if>
 		<xsl:if test="@parameterMap">
 			<xsl:attribute name="parameterMap"><xsl:value-of select="@parameterMap" /></xsl:attribute>
+		</xsl:if>
+		<xsl:if test="selectKey">
+			<xsl:attribute name="useGeneratedKeys"><xsl:text>true</xsl:text></xsl:attribute>
+			<xsl:attribute name="keyProperty"><xsl:value-of select="selectKey/@keyProperty" /></xsl:attribute>
 		</xsl:if>
   	<xsl:apply-templates/>
   	</xsl:element>
@@ -373,7 +379,14 @@
 			<xsl:attribute name="javaType"><xsl:value-of select="@javaType" /></xsl:attribute>
 		</xsl:if>
 		<xsl:if test="@jdbcType">
-			<xsl:attribute name="jdbcType"><xsl:value-of select="@jdbcType" /></xsl:attribute>
+			<xsl:choose>
+				<xsl:when test="@jdbcType = 'long'">
+					<xsl:attribute name="jdbcType"><xsl:text>BIGINT</xsl:text></xsl:attribute>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="jdbcType"><xsl:value-of select="@jdbcType" /></xsl:attribute>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:if>
 		<xsl:if test="@typeHandler">
 			<xsl:attribute name="typeHandler"><xsl:value-of select="@typeHandler" /></xsl:attribute>
@@ -400,6 +413,7 @@
 		<xsl:if test="substring-before(@property, '.')">
 			<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> == null or </xsl:text>
 		</xsl:if>
+            <xsl:text>param1.</xsl:text>
 		<xsl:value-of select="@property" /><xsl:text> == null</xsl:text></xsl:attribute>
 		<xsl:value-of select="@prepend" />
   		<xsl:apply-templates/>
@@ -412,7 +426,10 @@
 		<xsl:if test="substring-before(@property, '.')">
 			<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null and </xsl:text>
 		</xsl:if>
-		<xsl:value-of select="@property" /><xsl:text> != null</xsl:text></xsl:attribute>
+		<xsl:text>param1.</xsl:text>
+		<xsl:value-of select="@property" /><xsl:text> != null and </xsl:text>
+		<xsl:text>param1.</xsl:text>
+		<xsl:value-of select="@property" /><xsl:text> != ''</xsl:text></xsl:attribute>
 		<xsl:value-of select="@prepend" />
   		<xsl:apply-templates/>
   	</xsl:element>
@@ -424,6 +441,7 @@
 			<xsl:if test="substring-before(@property, '.')">
 				<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null and </xsl:text>
 			</xsl:if>
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" /><xsl:text> != null and </xsl:text>
 			<xsl:value-of select="@property" /><xsl:text> != ''</xsl:text>
 		</xsl:attribute>
@@ -438,6 +456,7 @@
 			<xsl:if test="substring-before(@property, '.')">
 				<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null and </xsl:text>
 			</xsl:if>
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" /><xsl:text> == null or </xsl:text>
 			<xsl:value-of select="@property" /><xsl:text> == ''</xsl:text>
 		</xsl:attribute>
@@ -449,6 +468,7 @@
 <xsl:template match="isGreaterThan">
 	<xsl:element name="if">
 		<xsl:attribute name="test">
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" />
 			<xsl:text><![CDATA[ > ]]></xsl:text>
 			<xsl:value-of select="@compareProperty" />
@@ -469,6 +489,7 @@
 <xsl:template match="isLessThan">
 	<xsl:element name="if">
 		<xsl:attribute name="test">
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" />
 			<xsl:text><![CDATA[ < ]]></xsl:text>
 			<xsl:value-of select="@compareProperty" />
@@ -492,8 +513,33 @@
 			<xsl:if test="substring-before(@property, '.')">
 				<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null and </xsl:text>
 			</xsl:if>
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" />
 			<xsl:text><![CDATA[ == ]]></xsl:text>
+			<xsl:value-of select="@compareProperty" />
+			<xsl:choose>
+				<xsl:when test="number(@compareValue) &gt; '-999999999'">
+					<xsl:value-of select="@compareValue" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text><![CDATA["]]></xsl:text><xsl:value-of select="@compareValue" /><xsl:text><![CDATA["]]></xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:attribute>
+		<xsl:value-of select="@prepend" />
+		<xsl:apply-templates/>
+  	</xsl:element>
+</xsl:template>
+
+<xsl:template match="isNotEqual">
+	<xsl:element name="if">
+		<xsl:attribute name="test">
+			<xsl:if test="substring-before(@property, '.')">
+				<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null and </xsl:text>
+			</xsl:if>
+			<xsl:text>param1.</xsl:text>
+			<xsl:value-of select="@property" />
+			<xsl:text><![CDATA[ != ]]></xsl:text>
 			<xsl:value-of select="@compareProperty" />
 			<xsl:choose>
 				<xsl:when test="number(@compareValue) &gt; '-999999999'">
@@ -512,6 +558,7 @@
 <xsl:template match="isLessEqual">
 	<xsl:element name="if">
 		<xsl:attribute name="test">
+			<xsl:text>param1.</xsl:text>
 			<xsl:value-of select="@property" />
 			<xsl:text><![CDATA[ <= ]]></xsl:text>
 			<xsl:value-of select="@compareProperty" />
@@ -532,7 +579,7 @@
 <xsl:template match="iterate">
 	<xsl:value-of select="@prepend" /><xsl:text> </xsl:text>
 	<xsl:element name="foreach">
-		<xsl:attribute name="collection"><xsl:value-of select="@property" /></xsl:attribute>
+		<xsl:attribute name="collection"><xsl:text>param1.</xsl:text><xsl:value-of select="@property" /></xsl:attribute>
 		<xsl:attribute name="item">item</xsl:attribute>
 		<xsl:if test="@conjunction">
 			<xsl:attribute name="separator"><xsl:value-of select="@conjunction" /></xsl:attribute>
@@ -548,26 +595,34 @@
 </xsl:template>
 
 <xsl:template match="selectKey">
-	<xsl:element name="selectKey">
-		<xsl:attribute name="keyProperty"><xsl:value-of select="@keyProperty" /></xsl:attribute>
-		<xsl:if test="@resultClass">
-			<xsl:attribute name="resultType"><xsl:value-of select="@resultClass" /></xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@type = 'pre'">
-			<xsl:attribute name="order">BEFORE</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="@type = 'post'">
-			<xsl:attribute name="order">AFTER</xsl:attribute>
-		</xsl:if>
-  		<xsl:apply-templates/>
-  	</xsl:element>
+<!--	<xsl:element name="selectKey">-->
+<!--		<xsl:attribute name="keyProperty"><xsl:value-of select="@keyProperty" /></xsl:attribute>-->
+<!--		<xsl:if test="@resultClass">-->
+<!--			<xsl:attribute name="resultType"><xsl:value-of select="@resultClass" /></xsl:attribute>-->
+<!--		</xsl:if>-->
+<!--		<xsl:if test="@type = 'pre'">-->
+<!--			<xsl:attribute name="order">BEFORE</xsl:attribute>-->
+<!--		</xsl:if>-->
+<!--		<xsl:if test="@type = 'post'">-->
+<!--			<xsl:attribute name="order">AFTER</xsl:attribute>-->
+<!--		</xsl:if>-->
+<!--  		<xsl:apply-templates/>-->
+<!--  	</xsl:element>-->
 </xsl:template>
+
+	<xsl:template match="dynamic">
+		<xsl:if test="@prepend = 'WHERE'">
+			<xsl:element name="where">
+				<xsl:apply-templates/>
+			</xsl:element>
+		</xsl:if>
+	</xsl:template>
 
 <xsl:template match="comment()">
 	<xsl:copy/>
 </xsl:template>
 
-<xsl:template match="/sqlMap/typeAlias|statement|cacheModel|dynamic|isPropertyAvailable|isNotPropertyAvailable|isNotParameterPresent|isParameterPresent|/sqlMapConfig/properties">
+<xsl:template match="/sqlMap/typeAlias|statement|cacheModel|isPropertyAvailable|isNotPropertyAvailable|isNotParameterPresent|isParameterPresent|/sqlMapConfig/properties">
 	<xsl:comment>
 		Sorry, I can`t migrate	<xsl:value-of select="@*"/>
 		See console output for further details 

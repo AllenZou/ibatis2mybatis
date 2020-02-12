@@ -30,18 +30,32 @@
 		<!-- add any needed jdbc type here (for example :CLOB#, :FLOAT#, :REAL#, :BIT#, :INTEGER#, :DECIMAL#, :DATE#, :TIME#, .... ) 
 		<replace dir="destination" includes="*.xml" token=":???#" value=",jdbcType=???#" encoding="UTF8"/>
 		-->
+		<!-- 删除 source目录 DOCTYPE 行-->
+		<replaceregexp match="^(?=.*DOCTYPE).*$" byline="true" replace="" encoding="UTF8">
+			<fileset dir="source" includes="*.xml" />
+		</replaceregexp>
+
 		<!-- replace $id$ with ${id} -->
 		<replaceregexp match="\$([a-zA-Z0-9.\[\]_]+)\$" replace="$\{\1}" flags="mg" byline="false" encoding="UTF8">
 		    <fileset dir="destination" includes="*.xml" />
 		</replaceregexp>
 		<!-- replace #id# with #{id} -->
-		<replaceregexp match="#([a-zA-Z0-9,_.=\[\]]{2,})#" replace="#{\1}" flags="mg" byline="false" encoding="UTF8">
+		<replaceregexp match="#([a-zA-Z0-9,_.=\[\]]{2,})#" replace="#{param1.\1}" flags="mg" byline="false" encoding="UTF8">
 		    <fileset dir="destination" includes="*.xml" />
 		</replaceregexp>
 		<!-- replace xyz[] with item for use in iterators-->
-		<replaceregexp match="[a-z.]{2,}\[\]" replace="item" flags="ig" encoding="UTF8">
+		<replaceregexp match="param1.[a-z.]{2,}\[\]" replace="item" flags="ig" encoding="UTF8">
 		    <fileset dir="destination" includes="*.xml" />
 		</replaceregexp>
+		<!-- 删除 mysql 分页 limit 行-->
+		<replaceregexp match="^(?=.*LIMIT|.*limit).*$" byline="true" replace="" encoding="UTF8">
+			<fileset dir="destination" includes="*.xml" />
+		</replaceregexp>
+		<!-- 删除 分页 xml注解行-->
+		<replaceregexp match="^(?=.*用于分页).*$" byline="true" replace="" encoding="UTF8">
+			<fileset dir="destination" includes="*.xml" />
+		</replaceregexp>
+
 
 		<xmlvalidate failonerror="yes" lenient="false" warn="yes">
 				<attribute name="http://apache.org/xml/features/validation/schema"  value="false" />
