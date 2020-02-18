@@ -423,11 +423,12 @@
 <xsl:template match="isNotNull">
 	<xsl:element name="if">
 		<xsl:attribute name="test">
-		<xsl:if test="substring-before(@property, '.')">
-			<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null </xsl:text>
-		</xsl:if>
-		<xsl:text>param1.</xsl:text>
-		<xsl:value-of select="@property" /><xsl:text> != null </xsl:text>
+			<xsl:if test="substring-before(@property, '.')">
+				<xsl:value-of select="substring-before(@property, '.')" /><xsl:text> != null </xsl:text>
+			</xsl:if>
+			<xsl:text>param1.</xsl:text>
+			<xsl:value-of select="@property" /><xsl:text> != null </xsl:text>
+		</xsl:attribute>
 		<xsl:value-of select="@prepend" />
   		<xsl:apply-templates/>
   	</xsl:element>
