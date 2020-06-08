@@ -610,7 +610,7 @@
 </xsl:template>
 
 	<xsl:template match="dynamic">
-		<xsl:if test="@prepend = 'WHERE'">
+		<xsl:if test="@prepend = 'WHERE' or @prepend = 'where' ">
 			<xsl:element name="where">
 				<xsl:apply-templates/>
 			</xsl:element>
